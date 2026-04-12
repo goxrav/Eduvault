@@ -12,11 +12,11 @@ import {
   ScrollView,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../src/config/firebaseConfig";
+import { auth } from "../config/firebaseConfig";
 import { useSnackbar } from "../components/GlobalSnackbar";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "expo-router";
-import api from "../src/api/axios";
+import api from "../api/axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
 const { width } = Dimensions.get("window");
