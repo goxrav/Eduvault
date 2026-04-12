@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // 🔥 YOUR LOCAL IP HERE
-const BASE_URL = "http://192.168.1.4:5000";
+const BASE_URL = 'https://eduvault-72jq.onrender.com';
 
 const api = axios.create({
   baseURL: BASE_URL,
