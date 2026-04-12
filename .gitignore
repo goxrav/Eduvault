@@ -48,7 +48,6 @@ app-example
 .env.production
 
 # Firebase sensitive files
-google-services.json
 google-services.plist
 GoogleService-Info.plist
 
