@@ -20,7 +20,7 @@ import api from "../src/api/axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
 const { width } = Dimensions.get("window");
-import { useGoogleAuth } from "../hooks/useGoogleAuth";
+
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
