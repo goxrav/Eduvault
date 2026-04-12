@@ -41,3 +41,22 @@ app-example
 # generated native folders
 /ios
 /android
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Firebase sensitive files
+google-services.json
+google-services.plist
+GoogleService-Info.plist
+
+# EAS
+.eas/
+# Backend env
+eduvault-backend/.env
+eduvault-backend/.env.local
+eduvault-backend/.env.production
+# EAS credentials
+credentials.json
