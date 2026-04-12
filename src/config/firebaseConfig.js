@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbuZENYVGRPox-Fcftclo6WlR0-VK5GE",
-  authDomain: "eduvault-b705c.firebaseapp.com",
-  projectId: "eduvault-b705c",
-  storageBucket: "eduvault-b705c.firebasestorage.app",
-  messagingSenderId: "791533601638",
-  appId: "1:791533601638:web:fd8af861059593a565fea7",
-  measurementId: "G-1JGFYCH8P6"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
