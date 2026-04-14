@@ -66,4 +66,23 @@ router.put("/:uid", async (req, res) => {
   }
 });
 
+router.post('/api/users', async (req, res) => {
+  try {
+    const { uid, name, email, profilePic } = req.body;
+
+    // find existing or create new
+    let user = await User.findOne({ uid }).lean();
+
+    if (!user) {
+      user = await User.create({ uid, name, email, profilePic });
+    }
+
+    res.status(200).json(user);
+
+  } catch (error) {
+    console.error('User save error:', error);
+    res.status(500).json({ message: 'Failed to save user' });
+  }
+});
+
 module.exports = router;
