@@ -243,10 +243,14 @@ const onRefresh = async () => {
     note.subject?.toLowerCase().includes(query) ||
     note.userName?.toLowerCase().includes(query);
 
-  const matchesSelection = (note) =>
+  const matchesSelection = (note) =>{
+     if (!selectedBranch || !selectedSemester) return true;
+   if (!note.branch || !note.semester) return true;
+   return(
     note.branch?.toLowerCase() === selectedBranch?.toLowerCase() &&
-    Number(note.semester) === Number(selectedSemester);
-
+    Number(note.semester) === Number(selectedSemester)
+   );
+  };
   const filteredNotes = sortNotes(
     notes.filter((n) => matchesSearch(n) && matchesSelection(n)),
     sortBy
