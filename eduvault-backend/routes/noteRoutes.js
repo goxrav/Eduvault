@@ -57,10 +57,44 @@ router.delete("/:id", async (req, res) => {
 
 
 
-// GET ALL NOTES
+// GET ALL NOTES (OPTIMIZED)
 router.get("/", async (req, res) => {
-  const notes = await Note.find().sort({ createdAt: -1 });
-  res.json(notes);
+  try {
+    const { page = 1, limit = 10, subject, userId, search } = req.query;
+
+    let query = {};
+
+    // 🎯 FILTER BY SUBJECT
+    if (subject) {
+      query.subject = subject;
+    }
+
+    // 🎯 FILTER BY USER (MY UPLOADS)
+    if (userId) {
+      query.uploadedBy = userId;
+    }
+
+    // 🎯 SEARCH BY TITLE
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+
+    const notes = await Note.find(query)
+      .select("title subject fileUrl createdAt uploadedBy") // 🔥 reduce payload
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .lean();
+
+    // 🔥 CACHE HEADER
+    res.set("Cache-Control", "public, max-age=60");
+
+    res.json(notes);
+
+  } catch (err) {
+    console.error("Fetch notes error:", err);
+    res.status(500).json({ error: "Failed to fetch notes" });
+  }
 });
 
 module.exports = router;

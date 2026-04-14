@@ -68,7 +68,7 @@ router.put("/:uid", async (req, res) => {
     const updatedUser = await User.findOneAndUpdate(
       { uid: req.params.uid },
       req.body,
-      { new: true } // ✅ FIXED (you used wrong option earlier)
+      { new: true } 
     );
 
     res.json(updatedUser);

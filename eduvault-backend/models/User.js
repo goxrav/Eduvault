@@ -10,12 +10,11 @@ const userSchema = new mongoose.Schema({
   branch: String,
   year: Number,
   semester: Number,
+}, {
+  timestamps: true,}
 
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  
+);
 
 
 userSchema.index({ uid: 1 });
