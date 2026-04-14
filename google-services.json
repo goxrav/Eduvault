@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "791533601638-fpgoqthgqgbhlc82pcdhq2puj6kggjls.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gaurav.eduvault",
+            "certificate_hash": "064314c9cfd07f9451eef633af49d753a85f54cf"
+          }
+        },
+        {
           "client_id": "791533601638-6nad1k17a6nplpdm8j9nprjq1pqju39b.apps.googleusercontent.com",
           "client_type": 3
         }
