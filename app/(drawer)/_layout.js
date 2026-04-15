@@ -5,7 +5,7 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { Image, TouchableOpacity } from "react-native";
+import { Image } from "react-native";
 import { useRouter } from "expo-router";
 
 function CustomDrawerContent(props) {

@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 
-// ─── DESIGN TOKENS ───────────────────────────────────────────────────────────
+
 const C = {
   bg: "#080812",
   surface: "#10101E",
@@ -28,7 +28,7 @@ const C = {
   white: "#FFFFFF",
 };
 
-// ─── FEATURE PILLS ───────────────────────────────────────────────────────────
+
 const FEATURES = [
   { icon: "📚", label: "Branch-wise Notes" },
   { icon: "🔍", label: "Search & Filter" },
@@ -36,7 +36,7 @@ const FEATURES = [
   { icon: "🔒", label: "Secure & Private" },
 ];
 
-// ─── ANIMATED DOT (background decoration) ────────────────────────────────────
+
 const GlowOrb = ({ style }) => {
   const pulse = useRef(new Animated.Value(0.4)).current;
 
@@ -52,11 +52,11 @@ const GlowOrb = ({ style }) => {
   return <Animated.View style={[style, { opacity: pulse }]} />;
 };
 
-// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
+
 export default function Welcome() {
   const router = useRouter();
 
-  // entrance animations
+  
   const fadeTop = useRef(new Animated.Value(0)).current;
   const slideTop = useRef(new Animated.Value(-24)).current;
   const fadeMid = useRef(new Animated.Value(0)).current;
