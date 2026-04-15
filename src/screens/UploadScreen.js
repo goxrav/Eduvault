@@ -77,7 +77,7 @@ if (!user || !user.uid) {
   return;
 }
       await api.post("/api/notes", {
-        title: file.name,
+        title: file.name || "Untitled Note",
         subject,
         branch,
         semester: Number(semester),
@@ -87,16 +87,17 @@ if (!user || !user.uid) {
         userName: user?.name,
       });
 
-
-      getToast("Note uploaded successfully 🎉", "success");
-router.replace("/home");
-
-      // reset
+       // reset
       setSubject("");
       setBranch("");
       setSemester("");
       setFile(null); 
 
+      getToast("Note uploaded successfully 🎉", "success");
+      setTimeout(() => {
+router.replace("/home");
+      }, 300);
+      
     } 
    catch (err) {
   console.log("FULL ERROR:", err);

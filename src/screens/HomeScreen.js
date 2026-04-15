@@ -181,8 +181,11 @@ const [loadingMore, setLoadingMore] = useState(false);
   // ── Fetch ──
 const fetchNotes = useCallback(async () => {
   try {
-    const res = await api.get(`/api/notes?page=${page}&limit=10`);
-
+    const res = await api.get(`/api/notes?page=${page}&limit=10`, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    });
     if (res.data.length === 0) {
       setHasMore(false);
       return;
@@ -230,7 +233,7 @@ const onRefresh = async () => {
   setRefreshing(true);
   setPage(1);
   setHasMore(true);
-  setNotes([]); // 🔥 IMPORTANT
+   // 🔥 IMPORTANT
   await fetchNotes();
   setRefreshing(false);
 };
@@ -272,16 +275,22 @@ const onRefresh = async () => {
       style: "destructive",
       onPress: async () => {
         try {
-          await api.delete(`/api/notes/${id}`);
+          // 🔥 1. REMOVE FROM UI INSTANTLY
+          setNotes(prev => prev.filter(note => note._id !== id));
 
-          // 🔥 REFRESH DATA FROM SERVER
-          await fetchNotes();
+          // 🔥 2. CALL BACKEND
+          await api.delete(`/api/notes/${id}`);
 
           getToast?.("Note deleted 🗑️", "success");
 
         } catch (err) {
-          console.log("DELETE ERROR:", err.response?.data || err.message);
+          if (__DEV__) {
+            console.log("DELETE ERROR:", err?.response?.data || err.message);
+          }
           getToast?.("Couldn't delete the note", "error");
+
+          // 🔥 OPTIONAL: rollback if needed
+          fetchNotes();
         }
       },
     },

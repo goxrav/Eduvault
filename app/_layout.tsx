@@ -10,7 +10,7 @@ export default function Layout() {
     <SafeAreaProvider>
     <UserProvider>
       <PaperProvider>
-        <Stack screenOptions={{headerShown: false}}/>
+        <Stack screenOptions={{ animation: "fade", headerShown: false}}/>
         <GlobalSnackbar />
       </PaperProvider>
     </UserProvider>

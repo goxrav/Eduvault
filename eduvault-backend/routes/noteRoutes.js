@@ -86,8 +86,8 @@ router.get("/", async (req, res) => {
       .limit(parseInt(limit))
       .lean();
 
-    // 🔥 CACHE HEADER
-    res.set("Cache-Control", "public, max-age=60");
+   
+   
 
     res.json(notes);
 
