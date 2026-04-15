@@ -80,7 +80,7 @@ router.get("/", async (req, res) => {
     }
 
     const notes = await Note.find(query)
-      .select("title subject fileUrl createdAt uploadedBy") // 🔥 reduce payload
+      .select("title subject fileUrl createdAt uploadedBy branch semester userName") // 🔥 reduce payload
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
