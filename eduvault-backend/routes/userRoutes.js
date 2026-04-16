@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 
 
-// 🔥 CREATE OR GET USER (USED BY GOOGLE LOGIN)
+
 router.post("/", async (req, res) => {
   try {
     const {
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
 });
 
 
-// 🔥 GET USER BY UID
+
 router.get("/:uid", async (req, res) => {
   try {
     const user = await User.findOne({ uid: req.params.uid });
@@ -62,7 +62,7 @@ router.get("/:uid", async (req, res) => {
 });
 
 
-// 🔥 UPDATE USER
+
 router.put("/:uid", async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(

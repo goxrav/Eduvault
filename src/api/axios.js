@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// 🔥 YOUR LOCAL IP HERE
 const BASE_URL = 'https://eduvault-72jq.onrender.com';
 
 const api = axios.create({

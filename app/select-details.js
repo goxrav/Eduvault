@@ -8,7 +8,7 @@ export default function SelectDetails() {
   const [branch, setBranch] = useState("");
   const [semester, setSemester] = useState("");
 
-  const { setSelectedBranch, setSelectedSemester } = useUser(); // ✅ FIXED
+  const { setSelectedBranch, setSelectedSemester } = useUser();
   const router = useRouter();
 
   const handleSave = () => {
@@ -19,7 +19,7 @@ export default function SelectDetails() {
 
     console.log("SELECTED:", branch, semester);
 
-    // 🔥 SAVE IN CONTEXT
+   
     setSelectedBranch(branch);
     setSelectedSemester(semester);
 

@@ -16,7 +16,7 @@ const getToast = useSnackbar();
   const [branch, setBranch] = useState(user?.branch || "");
   const [semester, setSemester] = useState(user?.semester?.toString() || "");
 
-  // 🔥 LOGOUT
+ 
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -28,7 +28,7 @@ const getToast = useSnackbar();
     }
   };
 
-  // 🔥 SAVE PROFILE
+
   const handleSave = async () => {
   try {
     console.log("UPDATING USER:", user.uid);
@@ -55,12 +55,12 @@ const getToast = useSnackbar();
   return (
     <View style={{ flex: 1, backgroundColor: "#0F0F1A", padding: 20 }}>
 
-      {/* HEADER */}
+    
       <Text style={{ fontSize: 28, color: "#A78BFA", fontWeight: "bold", marginBottom: 20 }}>
         Settings
       </Text>
 
-      {/* 🔥 PROFILE CARD */}
+  
       <View style={{
         backgroundColor: "#1C1C2E",
         padding: 16,
@@ -69,7 +69,7 @@ const getToast = useSnackbar();
         alignItems: "center"
       }}>
 
-        {/* AVATAR */}
+      
         <Image
           source={{
             uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=7C3AED&color=fff`,
@@ -84,7 +84,7 @@ const getToast = useSnackbar();
           }}
         />
 
-        {/* EDIT MODE */}
+  
         {editMode ? (
           <>
             <TextInput

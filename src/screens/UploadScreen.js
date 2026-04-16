@@ -26,7 +26,7 @@ const UploadScreen = () => {
 
 
 
-  // 🔥 PICK FILE
+  
   const pickFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({});
     if (!result.canceled) {
@@ -34,7 +34,7 @@ const UploadScreen = () => {
     }
   };
 
-  // 🔥 UPLOAD FILE
+
   const uploadFile = async () => {
     if (!file) {
       getToast("Select a file first 📂","warning");
@@ -87,7 +87,7 @@ if (!user || !user.uid) {
         userName: user?.name,
       });
 
-       // reset
+     
       setSubject("");
       setBranch("");
       setSemester("");

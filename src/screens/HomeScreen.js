@@ -22,7 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSnackbar } from "../components/GlobalSnackbar";
 import { MaterialIcons } from "@expo/vector-icons";
 
-// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
 const COLORS = {
   bg: "#0A0A14",
   surface: "#13131F",
@@ -47,7 +47,7 @@ const SORT_OPTIONS = [
   { label: "Z → A", value: "za" },
 ];
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
 
 
 const getFileIcon = (name = "") => {
@@ -99,7 +99,7 @@ const sortNotes = (notes, sortBy) => {
   }
 };
 
-// ─── SUB-COMPONENTS ──────────────────────────────────────────────────────────
+
 const SkeletonCard = () => (
   <View style={styles.skeletonCard}>
     <View style={[styles.skeletonTitle, { opacity: 0.7 }]} />
@@ -191,7 +191,7 @@ const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload }) => (
   </Pressable>
 ));
 
-// ─── MAIN SCREEN ─────────────────────────────────────────────────────────────
+
 const HomeScreen = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -205,7 +205,7 @@ const HomeScreen = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  // ── Fetch ──
+
   const fetchNotes = useCallback(async () => {
     try {
       const res = await api.get(`/api/notes?page=${page}&limit=10`, {
@@ -240,7 +240,7 @@ const HomeScreen = () => {
   }, [page]);
 
 
-  // 🚀 USE EFFECT (UNCHANGED BUT IMPORTANT)
+  
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);

@@ -5,7 +5,7 @@ const noteSchema = new mongoose.Schema(
     title: String,
     subject: String,
 
-    // 🔥 IMPORTANT
+  
     branch: String,
     semester: Number,
 

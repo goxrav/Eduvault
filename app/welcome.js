@@ -160,7 +160,7 @@ export default function Welcome() {
   );
 }
 
-// ─── STYLES ──────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  // Background orbs
+
   orbTop: {
     position: "absolute",
     top: -80,
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3B0764AA",
   },
 
-  // TOP SECTION
+
   topSection: {
     alignItems: "flex-start",
   },
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
 
-  // MID SECTION
+
   midSection: {
     gap: 20,
   },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
 
-  // BOTTOM SECTION
+
   bottomSection: {
     gap: 12,
   },

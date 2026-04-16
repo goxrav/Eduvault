@@ -10,7 +10,7 @@ import { auth } from "../config/firebaseConfig";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import { useSnackbar } from "../components/GlobalSnackbar";
-import api from "../api/axios"; // 🔥 USE CENTRAL API
+import api from "../api/axios"; 
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -32,7 +32,7 @@ const RegisterScreen = () => {
   try {
     setLoading(true);
 
-    // 🔐 Firebase register
+  
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -41,12 +41,12 @@ const RegisterScreen = () => {
 
     const user = userCredential.user;
 
-    // 🔥 Update Firebase profile
+  
     await updateProfile(user, {
       displayName: name,
     });
 
-    // 🔥 Save user in backend
+  
     const res = await api.post("/api/users", {
       name,
       email,
@@ -57,7 +57,7 @@ const RegisterScreen = () => {
       semester: Number(semester),
     });
 
-    // ✅ SUCCESS
+  
     getToast?.("Account created successfully ", "success");
 
     router.replace("/select-details");
@@ -67,7 +67,7 @@ const RegisterScreen = () => {
 
     let message = "Registration failed";
 
-    // 🔥 Firebase errors
+  
     if (err.code === "auth/email-already-in-use") {
       message = "Email already in use";
     } else if (err.code === "auth/invalid-email") {

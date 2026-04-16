@@ -2,14 +2,14 @@ const express = require("express");
 const router = express.Router();
 const Note = require("../models/Note");
 
-// CREATE NOTE
+
 router.post("/", async (req, res) => {
   try {
     console.log("BODY RECEIVED:", req.body);
 
     const { title, subject, uploadedBy } = req.body;
 
-    // 🔥 CHECK DUPLICATE FIRST
+
     const existing = await Note.findOne({
       title,
       subject,
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // ✅ CREATE NOTE
+  
     const note = new Note(req.body);
     await note.save();
 
@@ -57,30 +57,30 @@ router.delete("/:id", async (req, res) => {
 
 
 
-// GET ALL NOTES (OPTIMIZED)
+
 router.get("/", async (req, res) => {
   try {
     const { page = 1, limit = 10, subject, userId, search } = req.query;
 
     let query = {};
 
-    // 🎯 FILTER BY SUBJECT
+ 
     if (subject) {
       query.subject = subject;
     }
 
-    // 🎯 FILTER BY USER (MY UPLOADS)
+  
     if (userId) {
       query.uploadedBy = userId;
     }
 
-    // 🎯 SEARCH BY TITLE
+  
     if (search) {
       query.title = { $regex: search, $options: "i" };
     }
 
     const notes = await Note.find(query)
-      .select("title subject fileUrl createdAt uploadedBy branch semester userName") // 🔥 reduce payload
+      .select("title subject fileUrl createdAt uploadedBy branch semester userName")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))

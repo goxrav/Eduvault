@@ -24,12 +24,12 @@ export const useGoogleAuth = () => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
       try {
-        // Step 1 — Firebase auth
+     
         const credential = GoogleAuthProvider.credential(id_token);
         const result = await signInWithCredential(auth, credential);
         const { uid, displayName, email, photoURL } = result.user;
 
-        // Step 2 — Save to backend
+      
         await api.post('/api/users', {
           uid,
           name: displayName,
@@ -37,15 +37,15 @@ export const useGoogleAuth = () => {
           profilePic: photoURL,
         });
 
-        // Step 3 — Navigate
+      
         router.replace('/select-details');
 
       } catch (error) {
         if (error.code) {
-          // Firebase error
+       
           console.error('Firebase error:', error.code, error.message);
         } else {
-          // Backend error
+        
           console.error('Backend error:', error.message);
         }
       }
