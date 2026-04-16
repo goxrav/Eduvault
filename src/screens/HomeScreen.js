@@ -48,7 +48,7 @@ const SORT_OPTIONS = [
 ];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-import { MaterialIcons } from "@expo/vector-icons";
+
 
 const getFileIcon = (name = "") => {
   const lower = name.toLowerCase();
