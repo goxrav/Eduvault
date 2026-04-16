@@ -20,6 +20,7 @@ import { useUser } from "../context/UserContext";
 import api from "../api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSnackbar } from "../components/GlobalSnackbar";
+import { MaterialIcons } from "@expo/vector-icons";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 const COLORS = {
@@ -47,13 +48,37 @@ const SORT_OPTIONS = [
 ];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-const getFileIcon = (name = "") => {
-  if (name.endsWith(".pdf")) return "📕";
-  if (name.endsWith(".docx")) return "📘";
-  if (name.endsWith(".jpg") || name.endsWith(".png")) return "🖼️";
-  return "📄";
-};
+import { MaterialIcons } from "@expo/vector-icons";
 
+const getFileIcon = (name = "") => {
+  const lower = name.toLowerCase();
+
+  if (lower.endsWith(".pdf")) {
+    return <MaterialIcons name="picture-as-pdf" size={22} color="#EF4444" />;
+  }
+
+  if (lower.match(/\.(jpg|jpeg|png|webp)$/)) {
+    return <MaterialIcons name="image" size={22} color="#22C55E" />;
+  }
+
+  if (lower.match(/\.(doc|docx)$/)) {
+    return <MaterialIcons name="description" size={22} color="#3B82F6" />;
+  }
+
+  if (lower.match(/\.(ppt|pptx)$/)) {
+    return <MaterialIcons name="slideshow" size={22} color="#F97316" />;
+  }
+
+  if (lower.match(/\.(xls|xlsx)$/)) {
+    return <MaterialIcons name="grid-on" size={22} color="#10B981" />;
+  }
+
+  if (lower.match(/\.(zip|rar)$/)) {
+    return <MaterialIcons name="folder-zip" size={22} color="#A855F7" />;
+  }
+
+  return <MaterialIcons name="insert-drive-file" size={22} color="#A1A1AA" />;
+};
 const formatDate = (date) => {
   if (!date) return "";
   return new Date(date).toLocaleDateString("en-IN", {
@@ -130,7 +155,9 @@ const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload }) => (
   >
     {/* Title row */}
     <View style={styles.cardHeader}>
-      <Text style={styles.cardIcon}>{getFileIcon(item.title)}</Text>
+      <View style={styles.cardIcon}>
+        {getFileIcon(item.title)}
+      </View>
       <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
     </View>
 
@@ -172,71 +199,71 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState("selected");
   const [sortBy, setSortBy] = useState("latest");
-const getToast = useSnackbar();
+  const getToast = useSnackbar();
   const { selectedBranch, selectedSemester, setSelectedBranch, setSelectedSemester } = useUser();
   const currentUid = auth.currentUser?.uid;
-const [page, setPage] = useState(1);
-const [hasMore, setHasMore] = useState(true);
-const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   // ── Fetch ──
-const fetchNotes = useCallback(async () => {
-  try {
-    const res = await api.get(`/api/notes?page=${page}&limit=10`, {
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-    });
-    if (res.data.length === 0) {
-      setHasMore(false);
-      return;
-    }
-
-    if (page === 1) {
-      setNotes(res.data);
-    } else {
-      setNotes(prev => {
-        const newItems = res.data.filter(
-          item => !prev.some(old => old._id === item._id)
-        );
-        return [...prev, ...newItems];
+  const fetchNotes = useCallback(async () => {
+    try {
+      const res = await api.get(`/api/notes?page=${page}&limit=10`, {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
       });
+      if (res.data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      if (page === 1) {
+        setNotes(res.data);
+      } else {
+        setNotes(prev => {
+          const newItems = res.data.filter(
+            item => !prev.some(old => old._id === item._id)
+          );
+          return [...prev, ...newItems];
+        });
+      }
+
+    } catch (err) {
+      if (__DEV__) {
+        console.log("Fetch error:", err?.response?.data || err.message);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
+  }, [page]);
 
-  } catch (err) {
-    if (__DEV__) {
-      console.log("Fetch error:", err?.response?.data || err.message);
+
+  // 🚀 USE EFFECT (UNCHANGED BUT IMPORTANT)
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+
+  // 🚀 LOAD MORE
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      setLoadingMore(true);
+      setPage(prev => prev + 1);
     }
-  } finally {
-    setLoading(false);
-    setLoadingMore(false);
-  }
-}, [page]);
+  };
 
 
-// 🚀 USE EFFECT (UNCHANGED BUT IMPORTANT)
-useEffect(() => {
-  fetchNotes();
-}, [fetchNotes]);
-
-
-// 🚀 LOAD MORE
-const loadMore = () => {
-  if (!loadingMore && hasMore) {
-    setLoadingMore(true);
-    setPage(prev => prev + 1);
-  }
-};
-
-
-// 🚀 FIX REFRESH
-const onRefresh = async () => {
-  setRefreshing(true);
-  setPage(1);
-  setHasMore(true);
-   // 🔥 IMPORTANT
-  await fetchNotes();
-  setRefreshing(false);
-};
+  // 🚀 FIX REFRESH
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setPage(1);
+    setHasMore(true);
+    // 🔥 IMPORTANT
+    await fetchNotes();
+    setRefreshing(false);
+  };
 
   // ── Filter & Sort ──
   const query = search.toLowerCase();
@@ -246,13 +273,13 @@ const onRefresh = async () => {
     note.subject?.toLowerCase().includes(query) ||
     note.userName?.toLowerCase().includes(query);
 
-  const matchesSelection = (note) =>{
-     if (!selectedBranch || !selectedSemester) return true;
-   if (!note.branch || !note.semester) return true;
-   return(
-    note.branch?.toLowerCase() === selectedBranch?.toLowerCase() &&
-    Number(note.semester) === Number(selectedSemester)
-   );
+  const matchesSelection = (note) => {
+    if (!selectedBranch || !selectedSemester) return true;
+    if (!note.branch || !note.semester) return true;
+    return (
+      note.branch?.toLowerCase() === selectedBranch?.toLowerCase() &&
+      Number(note.semester) === Number(selectedSemester)
+    );
   };
   const filteredNotes = sortNotes(
     notes.filter((n) => matchesSearch(n) && matchesSelection(n)),
@@ -267,46 +294,46 @@ const onRefresh = async () => {
   const displayData = activeTab === "selected" ? filteredNotes : myNotes;
 
   // ── Actions ──
- const deleteNote = useCallback((id) => {
-  Alert.alert("Delete Note", "This can't be undone. Sure?", [
-    { text: "Cancel", style: "cancel" },
-    {
-      text: "Delete",
-      style: "destructive",
-      onPress: async () => {
-        try {
-          // 🔥 1. REMOVE FROM UI INSTANTLY
-          setNotes(prev => prev.filter(note => note._id !== id));
+  const deleteNote = useCallback((id) => {
+    Alert.alert("Delete Note", "This can't be undone. Sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            // 🔥 1. REMOVE FROM UI INSTANTLY
+            setNotes(prev => prev.filter(note => note._id !== id));
 
-          // 🔥 2. CALL BACKEND
-          await api.delete(`/api/notes/${id}`);
+            // 🔥 2. CALL BACKEND
+            await api.delete(`/api/notes/${id}`);
 
-          getToast?.("Note deleted 🗑️", "success");
+            getToast?.("Note deleted 🗑️", "success");
 
-        } catch (err) {
-          if (__DEV__) {
-            console.log("DELETE ERROR:", err?.response?.data || err.message);
+          } catch (err) {
+            if (__DEV__) {
+              console.log("DELETE ERROR:", err?.response?.data || err.message);
+            }
+            getToast?.("Couldn't delete the note", "error");
+
+            // 🔥 OPTIONAL: rollback if needed
+            fetchNotes();
           }
-          getToast?.("Couldn't delete the note", "error");
-
-          // 🔥 OPTIONAL: rollback if needed
-          fetchNotes();
-        }
+        },
       },
-    },
-  ]);
-}, [fetchNotes]);
+    ]);
+  }, [fetchNotes]);
 
   const downloadFile = useCallback(async (url, filename) => {
-  try {
-    getToast?.("Opening file... 📥", "info");
+    try {
+      getToast?.("Opening file... 📥", "info");
 
-    await Linking.openURL(url);
+      await Linking.openURL(url);
 
-  } catch (err) {
-    getToast?.("Download failed ❌", "error");
-  }
-}, []);
+    } catch (err) {
+      getToast?.("Download failed ❌", "error");
+    }
+  }, []);
 
   // ── Render ──
   const ListHeader = () => (
@@ -319,31 +346,31 @@ const onRefresh = async () => {
             Hey, {auth.currentUser?.displayName?.split(" ")[0] || "there"} 👋
           </Text>
         </View>
-       {selectedBranch && selectedSemester && (
-  <View style={styles.selectionRow}>
-    
-    <View style={styles.selectionBadge}>
-      <Text style={styles.selectionBadgeText}>
-        {selectedBranch} · Sem {selectedSemester}
-      </Text>
-    </View>
+        {selectedBranch && selectedSemester && (
+          <View style={styles.selectionRow}>
 
-    <Pressable
-      onPress={() => {
-        setSelectedBranch(null);
-        setSelectedSemester(null);
-        router.push("/select-details");
-      }}
-      style={styles.changeBtn}
-    >
-      <Text style={styles.changeBtnText}>Change</Text>
-    </Pressable>
+            <View style={styles.selectionBadge}>
+              <Text style={styles.selectionBadgeText}>
+                {selectedBranch} · Sem {selectedSemester}
+              </Text>
+            </View>
 
-  </View>
-)}
-</View>
+            <Pressable
+              onPress={() => {
+                setSelectedBranch(null);
+                setSelectedSemester(null);
+                router.push("/select-details");
+              }}
+              style={styles.changeBtn}
+            >
+              <Text style={styles.changeBtnText}>Change</Text>
+            </Pressable>
+
+          </View>
+        )}
+      </View>
       {/* Stats row */}
-      
+
 
       {/* Search */}
       <TextInput
@@ -373,52 +400,52 @@ const onRefresh = async () => {
             {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
           </View>
         ) : (
-         <FlatList
-  data={displayData}
-  keyExtractor={(item) => item._id}
-  contentContainerStyle={styles.listContent}
-  ListHeaderComponent={<ListHeader />}
+          <FlatList
+            data={displayData}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.listContent}
+            ListHeaderComponent={<ListHeader />}
 
-  // 🔥 ADD HERE
-  onEndReached={loadMore}
-  onEndReachedThreshold={0.5}
+            // 🔥 ADD HERE
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
 
-  ListFooterComponent={
-    loadingMore ? (
-      <Text style={{ color: "#aaa", textAlign: "center", marginBottom: 20 }}>
-        Loading more...
-      </Text>
-    ) : null
-  }
+            ListFooterComponent={
+              loadingMore ? (
+                <Text style={{ color: "#aaa", textAlign: "center", marginBottom: 20 }}>
+                  Loading more...
+                </Text>
+              ) : null
+            }
 
-  ListEmptyComponent={
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyIcon}>
-        {activeTab === "my" ? "📭" : "📂"}
-      </Text>
-      <Text style={styles.emptyTitle}>
-        {activeTab === "my" ? "No uploads yet" : "No notes found"}
-      </Text>
-    </View>
-  }
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>
+                  {activeTab === "my" ? "📭" : "📂"}
+                </Text>
+                <Text style={styles.emptyTitle}>
+                  {activeTab === "my" ? "No uploads yet" : "No notes found"}
+                </Text>
+              </View>
+            }
 
-  refreshControl={
-    <RefreshControl
-      refreshing={refreshing}
-      onRefresh={onRefresh}
-      tintColor={COLORS.accentLight}
-    />
-  }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={COLORS.accentLight}
+              />
+            }
 
-  renderItem={({ item }) => (
-    <NoteCard
-      item={item}
-      currentUid={currentUid}
-      onDelete={deleteNote}
-      onDownload={downloadFile}
-    />
-  )}
-/>
+            renderItem={({ item }) => (
+              <NoteCard
+                item={item}
+                currentUid={currentUid}
+                onDelete={deleteNote}
+                onDownload={downloadFile}
+              />
+            )}
+          />
         )}
 
         {/* FAB */}
@@ -468,27 +495,27 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   selectionRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginTop: 8,
-  marginBottom: 12,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    marginBottom: 12,
+  },
 
-changeBtn: {
-  backgroundColor: COLORS.accentDim,
-  borderWidth: 1,
-  borderColor: COLORS.accent,
-  paddingHorizontal: 12,
-  paddingVertical: 6,
-  borderRadius: 8,
-},
+  changeBtn: {
+    backgroundColor: COLORS.accentDim,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
 
-changeBtnText: {
-  color: COLORS.accentLight,
-  fontSize: 12,
-  fontWeight: "600",
-},
+  changeBtnText: {
+    color: COLORS.accentLight,
+    fontSize: 12,
+    fontWeight: "600",
+  },
   selectionBadge: {
     backgroundColor: COLORS.accentDim,
     paddingHorizontal: 10,
@@ -646,6 +673,9 @@ changeBtnText: {
   cardIcon: {
     fontSize: 22,
     lineHeight: 26,
+    width: 30,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cardTitle: {
     flex: 1,
