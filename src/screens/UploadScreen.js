@@ -183,6 +183,8 @@ router.replace("/home");
         <Picker.Item label="CSE" value="CSE" />
         <Picker.Item label="ECE" value="ECE" />
         <Picker.Item label="ME" value="ME" />
+        <Picker.Item label="CE" value="CE" />
+        <Picker.Item label="ECM" value="ECM" />
       </Picker>
 
       <Picker
