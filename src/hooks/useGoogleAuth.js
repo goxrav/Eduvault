@@ -6,9 +6,13 @@ import { auth } from '../config/firebaseConfig';
 import { useRouter } from 'expo-router';
 import api from '../api/axios';
 WebBrowser.maybeCompleteAuthSession();
-
+import * as AuthSession from 'expo-auth-session';
 export const useGoogleAuth = () => {
   const router = useRouter();
+
+  const redirectUri = AuthSession.makeRedirectUri({
+  useProxy: true,
+});
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '791533601638-6nad1k17a6nplpdm8j9nprjq1pqju39b.apps.googleusercontent.com',
     androidClientId: '791533601638-fpgoqthgqgbhlc82pcdhq2puj6kggjls.apps.googleusercontent.com',
@@ -55,7 +59,7 @@ export const useGoogleAuth = () => {
     }
   };
   const signIn = async () => {
-    await promptAsync();
+    await promptAsync({ useProxy: true });
   };
 
   return { signIn, request };
