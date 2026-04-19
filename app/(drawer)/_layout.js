@@ -79,7 +79,7 @@ export default function DrawerLayout() {
       <Drawer.Screen name="home" options={{ title: "Home" }} />
       <Drawer.Screen name="upload" options={{ title: "Upload Notes" }} />
       <Drawer.Screen name="settings" options={{ title: "Settings" }} />
-      <Drawer.Screen name="Bookmarks" options={{ title: "Bookmarked Notes" }} />
+      <Drawer.Screen name="bookmarks" options={{ title: "Bookmarked Notes" }} />
     </Drawer>
   );
 }
