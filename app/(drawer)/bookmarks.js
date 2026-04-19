@@ -1,3 +1,5 @@
-import BookmarkedNotes from "../../screens/BookmarkedNotes";
+import BookmarkedNotes from "../../src/screens/BookmarkedNotes";
 
-export default BookmarkedNotes;
+export default function Bookmarks() {
+    return <BookmarkedNotes />;
+}

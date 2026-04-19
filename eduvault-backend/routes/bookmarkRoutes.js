@@ -31,7 +31,7 @@ router.delete("/:noteId/:userId", async (req, res) => {
   }
 });
 
-import Note from "../models/Note.js";
+
 
 router.get("/:userId", async (req, res) => {
   try {
