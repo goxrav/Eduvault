@@ -148,7 +148,7 @@ const TabBar = ({ activeTab, setActiveTab, myCount }) => (
   </View>
 );
 
-const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload }) => (
+const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload, bookmarkedNotes=new Set(), toggleBookmark = () => {}}) => (
   <Pressable
     onPress={() => Linking.openURL(item.fileUrl)}
     style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
