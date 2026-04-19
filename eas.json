@@ -14,15 +14,13 @@
         "buildType": "apk"
       },
       "env": {
-        "npm_config_legacy_peer_deps": "true",
-        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON"
+        "npm_config_legacy_peer_deps": "true"
+       
       }
     },
     "production": {
-      "autoIncrement": true,
-      "env": {
-        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON"
-      }
+      "autoIncrement": true
+      
     }
   },
   "submit": {
