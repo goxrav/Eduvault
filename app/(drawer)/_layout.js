@@ -80,6 +80,7 @@ export default function DrawerLayout() {
       <Drawer.Screen name="upload" options={{ title: "Upload Notes" }} />
       <Drawer.Screen name="settings" options={{ title: "Settings" }} />
       <Drawer.Screen name="bookmarks" options={{ title: "Bookmarked Notes" }} />
+      
     </Drawer>
   );
 }

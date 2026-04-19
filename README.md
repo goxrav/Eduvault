@@ -9,10 +9,12 @@ Built with a modern tech stack, EduVault focuses on simplicity, collaboration, a
 ## ✨ Features
 
 * 🔐 Secure Authentication (Google & Email)
+* 🔐Chane password option
 * 📤 Upload Notes (PDF, Images, Docs)
 * 📂 Structured Categorization (Class, Semester, Subject)
 * 🔍 Search & Filter Notes
 * 📥 Download & View Files
+*🔖 Bookmark files
 * 🗑 Delete Your Uploads
 * 🏆 Reward System (Badges for contributors)
 * 🌙 Dark & Light Mode UI

@@ -150,26 +150,45 @@ const TabBar = ({ activeTab, setActiveTab, myCount }) => (
 
 const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload, bookmarkedNotes=new Set(), toggleBookmark = () => {}}) => (
   <Pressable
-    onPress={() => Linking.openURL(item.fileUrl)}
+   onPress={() => {
+  if (!item?.fileUrl) return;
+  Linking.openURL(item.fileUrl);
+}}
     style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
   >
   {/* 🔖 BOOKMARK ICON (TOP RIGHT) */}
     <Pressable
       onPress={(e) => {
-        e.stopPropagation(); // 🚀 VERY IMPORTANT (prevents opening file)
+        e.stopPropagation();
+        if (!item?._id) return;  // 🚀 VERY IMPORTANT (prevents opening file)
         toggleBookmark(item._id);
       }}
-      style={{
-        position: "absolute",
-        top: 10,
-        right: 10,
-        zIndex: 10,
-      }}
-    >
-      <Text style={{ fontSize: 18 }}>
-        {bookmarkedNotes.has(item._id) ? "🔖" : "📑"}
-      </Text>
-    </Pressable>
+       style={({ pressed }) => ({
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: bookmarkedNotes.has(item._id)
+      ? "rgba(124, 58, 237, 0.22)"
+      : "rgba(255,255,255,0.05)",
+    borderWidth: 1.5,
+    borderColor: bookmarkedNotes.has(item._id)
+      ? "rgba(167, 139, 250, 0.5)"
+      : "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ scale: pressed ? 0.88 : 1 }],
+  })}
+>
+  <MaterialIcons
+    name={bookmarkedNotes.has(item._id) ? "bookmark" : "bookmark-border"}
+    size={16}
+    color={bookmarkedNotes.has(item._id) ? "#A78BFA" : "#A1A1AA"}
+  />
+</Pressable>
 
 
     {/* Title row */}
@@ -189,24 +208,42 @@ const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload, bookmarke
       <Text style={styles.metaDate}>{formatDate(item.createdAt)}</Text>
     </View>
 
-    {/* Actions */}
-    <View style={styles.cardActions}>
-      <Pressable
-        onPress={() => onDownload(item.fileUrl, item.title)}
-        style={({ pressed }) => [styles.btnDownload, pressed && { opacity: 0.7 }]}
-      >
-        <Text style={styles.btnDownloadText}>⬇ Open</Text>
-      </Pressable>
+   
+    
+   {/* Actions */}
+<View style={styles.cardActions}>
 
-      {item.uploadedBy === currentUid && (
-        <Pressable
-          onPress={() => onDelete(item._id)}
-          style={({ pressed }) => [styles.btnDelete, pressed && { opacity: 0.7 }]}
-        >
-          <Text style={styles.btnDeleteText}> Delete</Text>
-        </Pressable>
-      )}
-    </View>
+  {/* Open Button */}
+  <Pressable
+    onPress={() => Linking.openURL(item.fileUrl)}
+    style={({ pressed }) => [styles.btnOpen, pressed && { opacity: 0.7 }]}
+  >
+    <MaterialIcons name="open-in-new" size={15} color={COLORS.green} />
+    <Text style={styles.btnOpenText}>Open</Text>
+  </Pressable>
+
+  {/* Download Button */}
+  <Pressable
+    onPress={() => onDownload(item.fileUrl, item.title)}
+    style={({ pressed }) => [styles.btnDownload, pressed && { opacity: 0.7 }]}
+  >
+    <MaterialIcons name="file-download" size={15} color="#3B82F6" />
+    <Text style={styles.btnDownloadText}>Download</Text>
+  </Pressable>
+
+  {/* Delete Button (owner only) */}
+  {item.uploadedBy === currentUid && (
+    <Pressable
+      onPress={() => onDelete(item._id)}
+      style={({ pressed }) => [styles.btnDelete, pressed && { opacity: 0.7 }]}
+    >
+      <MaterialIcons name="delete-outline" size={15} color={COLORS.red} />
+      <Text style={styles.btnDeleteText}>Delete</Text>
+    </Pressable>
+  )}
+
+</View>
+    
   </Pressable>
 ));
 
@@ -262,28 +299,51 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
 
   
   useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+  fetchNotes();
+  if (currentUid) {
+    fetchBookmarks();   // ✅ ADD THIS
+  }
+}, [fetchNotes, currentUid]);
 
-
-  const toggleBookmark = async (noteId) => {
+const toggleBookmark = async (noteId) => {
   try {
     const updated = new Set(bookmarkedNotes);
 
     if (updated.has(noteId)) {
       await api.delete(`/api/bookmarks/${noteId}/${currentUid}`);
       updated.delete(noteId);
+
+      getToast?.("Removed from bookmarks ❌", "info"); // ✅ TOAST
     } else {
       await api.post("/api/bookmarks", {
         userId: currentUid,
         noteId,
       });
       updated.add(noteId);
+
+      getToast?.("Added to bookmarks 🔖", "success"); // ✅ TOAST
     }
 
     setBookmarkedNotes(updated);
   } catch (err) {
     console.log(err);
+    getToast?.("Something went wrong ⚠️", "error"); // ✅ ERROR TOAST
+  }
+};
+ 
+
+const fetchBookmarks = async () => {
+  try {
+    const res = await api.get(`/api/bookmarks/${currentUid}`);
+
+    const ids = new Set(
+      res.data.map((b) => b.noteId?._id)
+      .filter(Boolean)
+    );
+
+    setBookmarkedNotes(ids);
+  } catch (err) {
+    console.log("Bookmark fetch error:", err);
   }
 };
 
@@ -304,6 +364,7 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
     setHasMore(true);
     // 🔥 IMPORTANT
     await fetchNotes();
+    await fetchBookmarks();
     setRefreshing(false);
   };
 
@@ -311,9 +372,9 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
   const query = search.toLowerCase();
 
   const matchesSearch = (note) =>
-    note.title?.toLowerCase().includes(query) ||
-    note.subject?.toLowerCase().includes(query) ||
-    note.userName?.toLowerCase().includes(query);
+   (note.title || "").toLowerCase().includes(query)  ||
+    (note.subject || "").toLowerCase().includes(query) || 
+    (note.userName || "").toLowerCase().includes(query);
 
   const matchesSelection = (note) => {
     if (!selectedBranch || !selectedSemester) return true;
@@ -366,16 +427,40 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
     ]);
   }, [fetchNotes]);
 
-  const downloadFile = useCallback(async (url, filename) => {
-    try {
-      getToast?.("Opening file... 📥", "info");
+  const getFileExtension = (url) => {
+  return url.split(".").pop().split("?")[0];
+};
 
-      await Linking.openURL(url);
-
-    } catch (err) {
-      getToast?.("Download failed ❌", "error");
+  const downloadFile = async (url, filename) => {
+  try {
+     if (!url) {
+      getToast?.("Invalid file URL ❌", "error");
+      return;
     }
-  }, []);
+
+    getToast?.("Downloading... 📥", "info");
+
+    // Clean filename
+    const ext = getFileExtension(url);
+let safeName = (filename || "file").replace(/\s+/g, "_");
+if (!safeName.endsWith(`.${ext}`)) {
+  safeName += `.${ext}`;
+}
+
+    const fileUri = FileSystem.documentDirectory + safeName;
+
+    const { uri } = await FileSystem.downloadAsync(url, fileUri);
+
+    getToast?.("Download complete ✅", "success");
+
+    // Open share dialog (lets user open/save file)
+    await Sharing.shareAsync(uri);
+
+  } catch (err) {
+    console.log(err);
+    getToast?.("Download failed ❌", "error");
+  }
+};
 
   // ── Render ──
   const ListHeader = () => (
@@ -442,16 +527,13 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
             {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
           </View>
         ) : (
-          <FlatList
+     <FlatList
             data={displayData}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item, index) => item?._id || index.toString()}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={<ListHeader />}
-
-            // 🔥 ADD HERE
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
-
             ListFooterComponent={
               loadingMore ? (
                 <Text style={{ color: "#aaa", textAlign: "center", marginBottom: 20 }}>
@@ -459,7 +541,6 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
                 </Text>
               ) : null
             }
-
             ListEmptyComponent={
               <View style={styles.emptyState}>
                 <Text style={styles.emptyIcon}>
@@ -470,7 +551,6 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
                 </Text>
               </View>
             }
-
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -478,31 +558,34 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
                 tintColor={COLORS.accentLight}
               />
             }
-
-            renderItem={({ item }) => (
-              <NoteCard
-                item={item}
-                currentUid={currentUid}
-                onDelete={deleteNote}
-                onDownload={downloadFile}
-                bookmarkedNotes={bookmarkedNotes}
-                toggleBookmark={toggleBookmark}
-              />
-            )}
+            renderItem={({ item }) =>
+              item ? (
+                <NoteCard
+                  item={item}
+                  currentUid={currentUid}
+                  onDelete={deleteNote}
+                  onDownload={downloadFile}
+                  bookmarkedNotes={bookmarkedNotes}
+                  toggleBookmark={toggleBookmark}
+                />
+              ) : null
+            }
           />
         )}
 
-        {/* FAB */}
+        {/* FAB — lives inside container, outside the if/else */}
         <Pressable
           onPress={() => router.push("/upload")}
           style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
         >
           <Text style={styles.fabIcon}>＋</Text>
         </Pressable>
+
       </View>
     </SafeAreaView>
   );
 };
+
 
 // ─── STYLES ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
@@ -759,34 +842,57 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
+  btnOpen: {
+  flex: 1,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 5,
+  backgroundColor: "#062E1A",
+  borderWidth: 1,
+  borderColor: COLORS.green,
+  paddingVertical: 9,
+  borderRadius: 10,
+},
+btnOpenText: {
+  color: COLORS.green,
+  fontSize: 13,
+  fontWeight: "600",
+},
   btnDownload: {
-    flex: 1,
-    backgroundColor: "#062E1a",
-    borderWidth: 1,
-    borderColor: COLORS.green,
-    paddingVertical: 9,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  btnDownloadText: {
-    color: COLORS.green,
-    fontSize: 13,
-    fontWeight: "600",
-  },
+  flex: 1,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 5,
+  backgroundColor: "#0A1929",
+  borderWidth: 1,
+  borderColor: "#3B82F6",
+  paddingVertical: 9,
+  borderRadius: 10,
+},
+btnDownloadText: {
+  color: "#3B82F6",
+  fontSize: 13,
+  fontWeight: "600",
+},
   btnDelete: {
-    flex: 1,
-    backgroundColor: "#2A0A0A",
-    borderWidth: 1,
-    borderColor: COLORS.red,
-    paddingVertical: 9,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  btnDeleteText: {
-    color: COLORS.red,
-    fontSize: 13,
-    fontWeight: "600",
-  },
+  flex: 1,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 5,
+  backgroundColor: "#2A0A0A",
+  borderWidth: 1,
+  borderColor: COLORS.red,
+  paddingVertical: 9,
+  borderRadius: 10,
+},
+btnDeleteText: {
+  color: COLORS.red,
+  fontSize: 13,
+  fontWeight: "600",
+},
 
   // Empty state
   emptyState: {

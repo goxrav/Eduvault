@@ -18,7 +18,7 @@ const UploadScreen = () => {
   const [branch, setBranch] = useState("");
   const [file, setFile] = useState(null);
   const [subject, setSubject] = useState("");
-  const [semester, setSemester] = useState("5");
+  const [semester, setSemester] = useState("");
   const [uploading, setUploading] = useState(false);
   const { user } = useUser();
   const getToast = useSnackbar();
@@ -29,29 +29,38 @@ const UploadScreen = () => {
   
   const pickFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({});
-    if (!result.canceled) {
+    if (!result.canceled && result.assets.length > 0) {
       setFile(result.assets[0]);
     }
   };
-
+ 
 
   const uploadFile = async () => {
     if (!file) {
       getToast("Select a file first 📂","warning");
       return;
     }
+     if (!file?.uri) {
+    getToast("Invalid file ❌","error");
+    return;
+  }
 
     if (!subject || !branch || !semester) {
       getToast("Fill all fields","warning");
       return;
     }
+     if (!user || !user.uid) {
+  getToast?.("User not loaded. Please login again", "error");
+  return;
+}
+
 
   
 
     try {
       setUploading(true);
 
-      const fileName = Date.now() + "_" + file.name;
+      const fileName = Date.now() + "_" + (file.name || "file");
 
       const response = await fetch(file.uri);
       const arrayBuffer = await response.arrayBuffer();
@@ -72,10 +81,7 @@ const UploadScreen = () => {
         .getPublicUrl(fileName);
 
       console.log("UPLOAD USER:", user);
-if (!user || !user.uid) {
-  getToast?.("User not loaded. Please login again", "error");
-  return;
-}
+
       await api.post("/api/notes", {
         title: file.name || "Untitled Note",
         subject,
