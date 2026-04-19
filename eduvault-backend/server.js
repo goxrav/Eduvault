@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const compression = require("compression");
+const bookmarkRoutes = require("./routes/bookmarkRoutes");
 
 const app = express();
 app.use(cors());
@@ -11,6 +12,7 @@ app.use (compression());
 
 app.use("/api/notes", require("./routes/noteRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/bookmarks", bookmarkRoutes);
 app.get("/", (req, res) => {
   res.send("API running 🚀");
 });

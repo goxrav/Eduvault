@@ -153,6 +153,25 @@ const NoteCard = React.memo(({ item, currentUid, onDelete, onDownload }) => (
     onPress={() => Linking.openURL(item.fileUrl)}
     style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
   >
+  {/* 🔖 BOOKMARK ICON (TOP RIGHT) */}
+    <Pressable
+      onPress={(e) => {
+        e.stopPropagation(); // 🚀 VERY IMPORTANT (prevents opening file)
+        toggleBookmark(item._id);
+      }}
+      style={{
+        position: "absolute",
+        top: 10,
+        right: 10,
+        zIndex: 10,
+      }}
+    >
+      <Text style={{ fontSize: 18 }}>
+        {bookmarkedNotes.has(item._id) ? "🔖" : "📑"}
+      </Text>
+    </Pressable>
+
+
     {/* Title row */}
     <View style={styles.cardHeader}>
       <View style={styles.cardIcon}>
@@ -205,6 +224,7 @@ const HomeScreen = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -244,6 +264,28 @@ const HomeScreen = () => {
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+
+  const toggleBookmark = async (noteId) => {
+  try {
+    const updated = new Set(bookmarkedNotes);
+
+    if (updated.has(noteId)) {
+      await api.delete(`/api/bookmarks/${noteId}/${currentUid}`);
+      updated.delete(noteId);
+    } else {
+      await api.post("/api/bookmarks", {
+        userId: currentUid,
+        noteId,
+      });
+      updated.add(noteId);
+    }
+
+    setBookmarkedNotes(updated);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 
   // 🚀 LOAD MORE
@@ -443,6 +485,8 @@ const HomeScreen = () => {
                 currentUid={currentUid}
                 onDelete={deleteNote}
                 onDownload={downloadFile}
+                bookmarkedNotes={bookmarkedNotes}
+                toggleBookmark={toggleBookmark}
               />
             )}
           />
