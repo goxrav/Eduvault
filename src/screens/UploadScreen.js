@@ -13,7 +13,7 @@ import { useSnackbar } from "../components/GlobalSnackbar";
 import { decode } from "base64-arraybuffer";
 import { supabase } from "../config/supabase";
 import { useUser } from "../context/UserContext";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { Buffer } from "buffer";
 global.Buffer = Buffer;
 
@@ -71,7 +71,7 @@ console.log("USER:", user);
      
 console.log("📂 Reading file from URI:", file.uri);
       const base64 = await FileSystem.readAsStringAsync(file.uri, {
-  encoding: FileSystem.EncodingType.Base64,
+  encoding: "base64",
 });
 console.log("✅ Base64 length:", base64?.length);
 const fileName = Date.now() + "_" + (file.name || "file"); // Replace with your desired file path 
