@@ -68,7 +68,7 @@ console.log("USER:", user);
     try {
       setUploading(true);
 
-     const fileName = Date.now() + "_" + (file.name || file.uri.split("/").pop());
+     
 console.log("📂 Reading file from URI:", file.uri);
       const base64 = await FileSystem.readAsStringAsync(file.uri, {
   encoding: FileSystem.EncodingType.Base64,
@@ -82,6 +82,7 @@ console.log("FileName:", fileName);
         .upload(fileName, decode(base64), {
           contentType: file.mimeType || "application/octet-stream",
         });
+        console.log("📦 Supabase response:", error);
 
      if (error) {
   getToast("Upload failed ❌", "error");
