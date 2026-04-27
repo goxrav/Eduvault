@@ -28,12 +28,15 @@ const UploadScreen = () => {
 
   
   const pickFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync({});
-    if (!result.canceled && result.assets.length > 0) {
-      setFile(result.assets[0]);
-    }
-  };
- 
+  const result = await DocumentPicker.getDocumentAsync({});
+
+  if (result?.assets && result.assets.length > 0) {
+    setFile(result.assets[0]);
+  } else if (!result.canceled && result.uri) {
+    // fallback for older versions
+    setFile(result);
+  }
+};
 
   const uploadFile = async () => {
     if (!file) {
@@ -60,14 +63,14 @@ const UploadScreen = () => {
     try {
       setUploading(true);
 
-      const fileName = Date.now() + "_" + (file.name || "file");
+     const fileName = Date.now() + "_" + (file.name || file.uri.split("/").pop());
 
       const response = await fetch(file.uri);
-      const arrayBuffer = await response.arrayBuffer();
+      const blob = await response.blob();
 
       const { error } = await supabase.storage
         .from("notes")
-        .upload(fileName, arrayBuffer, {
+        .upload(fileName, blob, {
           contentType: file.mimeType || "application/octet-stream",
         });
 
@@ -79,14 +82,17 @@ const UploadScreen = () => {
       const { data } = supabase.storage
         .from("notes")
         .getPublicUrl(fileName);
-
+if (!data?.publicUrl) {
+  getToast("Failed to get file URL", "error");
+  return;
+}
       console.log("UPLOAD USER:", user);
 
       await api.post("/api/notes", {
         title: file.name || "Untitled Note",
         subject,
         branch,
-        semester: Number(semester),
+        semester: parseInt(semester),
         fileUrl: data.publicUrl,
         uploadedBy: user?.uid,
         userEmail: user?.email,
