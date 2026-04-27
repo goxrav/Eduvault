@@ -64,15 +64,29 @@ const BookmarkedNotes = () => {
   );
 
   const removeBookmark = async (noteId) => {
-    try {
-      await api.delete(`/api/bookmarks/${noteId}/${currentUid}`);
-      setBookmarks((prev) => prev.filter((b) => b.noteId._id !== noteId));
-      getToast?.("Removed from bookmarks ❌", "info");
-    } catch (err) {
-      console.log(err);
-      getToast?.("Failed to remove bookmark ⚠️", "error");
-    }
-  };
+  if (!noteId) {
+    console.log("❌ Missing noteId");
+    return;
+  }
+
+  if (!currentUid) {
+    console.log("❌ Missing user UID");
+    return;
+  }
+
+  try {
+    await api.delete(`/api/bookmarks/${noteId}/${currentUid}`);
+
+    setBookmarks((prev) =>
+      prev.filter((b) => b?.noteId?._id !== noteId)
+    );
+
+    getToast?.("Removed from bookmarks ❌", "info");
+  } catch (err) {
+    console.log("REMOVE ERROR:", err);
+    getToast?.("Failed to remove bookmark ⚠️", "error");
+  }
+};
 
   const fetchBookmarks = async () => {
     try {
@@ -187,13 +201,25 @@ const BookmarkedNotes = () => {
           </Pressable>
 
           {/* Remove bookmark */}
-          <Pressable
-            onPress={() => removeBookmark(note._id)}
-            style={({ pressed }) => [
-              styles.btnRemove,
-              pressed && { opacity: 0.7 },
-            ]}
-          >
+         <Pressable
+  onPress={() => {
+    if (!note || !note._id) {
+      console.log("❌ Invalid note data:", note);
+      return;
+    }
+
+    if (!currentUid) {
+      console.log("❌ User not loaded");
+      return;
+    }
+
+    removeBookmark(note._id);
+  }}
+  style={({ pressed }) => [
+    styles.btnRemove,
+    pressed && { opacity: 0.7 },
+  ]}
+>
             <MaterialIcons name="bookmark-remove" size={14} color={COLORS.red} />
             <Text style={styles.btnRemoveText}>Remove</Text>
           </Pressable>
@@ -236,7 +262,7 @@ const BookmarkedNotes = () => {
         ) : (
           <FlatList
             data={bookmarks}
-            keyExtractor={(item) => item._id}
+           keyExtractor={(item) => item._id?.toString() || Math.random().toString()}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={

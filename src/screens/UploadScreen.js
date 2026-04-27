@@ -40,7 +40,9 @@ const UploadScreen = () => {
     setFile(result);
   }
 };
-console.log("🚀 Upload started");
+
+  const uploadFile = async () => {
+    console.log("🚀 Upload started");
 console.log("FILE:", file);
 console.log("USER:", user);
 if (uploading) {
@@ -53,7 +55,6 @@ if (!file || !file.uri) {
   return;
 }
 if (uploading) return;
-  const uploadFile = async () => {
     if (!file) {
       getToast("Select a file first 📂","warning");
       return;
