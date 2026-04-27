@@ -10,9 +10,12 @@ import {
 } from "react-native";
 import api from "../api/axios";
 import { useSnackbar } from "../components/GlobalSnackbar";
+import { decode } from "base64-arraybuffer";
 import { supabase } from "../config/supabase";
 import { useUser } from "../context/UserContext";
-
+import * as FileSystem from "expo-file-system";
+import { Buffer } from "buffer";
+global.Buffer = Buffer;
 
 const UploadScreen = () => {
   const [branch, setBranch] = useState("");
@@ -37,7 +40,9 @@ const UploadScreen = () => {
     setFile(result);
   }
 };
-
+console.log("🚀 Upload started");
+console.log("FILE:", file);
+console.log("USER:", user);
   const uploadFile = async () => {
     if (!file) {
       getToast("Select a file first 📂","warning");
@@ -64,13 +69,17 @@ const UploadScreen = () => {
       setUploading(true);
 
      const fileName = Date.now() + "_" + (file.name || file.uri.split("/").pop());
-
-      const response = await fetch(file.uri);
-      const blob = await response.blob();
-
+console.log("📂 Reading file from URI:", file.uri);
+      const base64 = await FileSystem.readAsStringAsync(file.uri, {
+  encoding: FileSystem.EncodingType.Base64,
+});
+console.log("✅ Base64 length:", base64?.length);
+const fileName = Date.now() + "_" + (file.name || "file"); // Replace with your desired file path 
+console.log("⬆️ Uploading to Supabase...");
+console.log("FileName:", fileName);
       const { error } = await supabase.storage
         .from("notes")
-        .upload(fileName, blob, {
+        .upload(fileName, decode(base64), {
           contentType: file.mimeType || "application/octet-stream",
         });
 
@@ -78,7 +87,7 @@ const UploadScreen = () => {
   getToast("Upload failed ❌", "error");
   return;
 }
-
+console.log("🌐 Getting public URL...");
       const { data } = supabase.storage
         .from("notes")
         .getPublicUrl(fileName);
@@ -87,7 +96,7 @@ if (!data?.publicUrl) {
   return;
 }
       console.log("UPLOAD USER:", user);
-
+console.log("📡 Sending data to backend...");
       await api.post("/api/notes", {
         title: file.name || "Untitled Note",
         subject,
@@ -113,7 +122,8 @@ router.replace("/home");
     } 
    catch (err) {
   console.log("FULL ERROR:", err);
-
+  
+console.log("❌ ERROR STRING:", JSON.stringify(err, null, 2));
   const message =
     err.response?.data?.message ||
     err.message ||
