@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import { useSnackbar } from "../components/GlobalSnackbar";
 import api from "../api/axios"; 
+import { useUser } from "../context/UserContext";
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -22,6 +23,7 @@ const RegisterScreen = () => {
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
   const [loading, setLoading] = useState(false);
+  const { setUser } = useUser();
 
   const handleRegister = async () => {
   if (!name || !email || !password || !degree || !branch || !year || !semester) {
@@ -56,7 +58,7 @@ const RegisterScreen = () => {
       year: Number(year),
       semester: Number(semester),
     });
-
+setUser(res.data);
   
     getToast?.("Account created successfully ", "success");
 
