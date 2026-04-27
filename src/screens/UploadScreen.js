@@ -43,6 +43,16 @@ const UploadScreen = () => {
 console.log("🚀 Upload started");
 console.log("FILE:", file);
 console.log("USER:", user);
+if (uploading) {
+  console.log("⛔ Already uploading");
+  return;
+}
+
+if (!file || !file.uri) {
+  console.log("❌ File missing, stopping");
+  return;
+}
+if (uploading) return;
   const uploadFile = async () => {
     if (!file) {
       getToast("Select a file first 📂","warning");
@@ -116,9 +126,10 @@ console.log("📡 Sending data to backend...");
       setFile(null); 
 
       getToast("Note uploaded successfully 🎉", "success");
-      setTimeout(() => {
+     
 router.replace("/home");
-      }, 300);
+return;
+      
       
     } 
    catch (err) {
@@ -244,19 +255,26 @@ console.log("❌ ERROR STRING:", JSON.stringify(err, null, 2));
 
 
       {/* 🔥 UPLOAD BUTTON */}
-      <TouchableOpacity
-        onPress={uploadFile}
-        disabled={!file || !subject || !branch || !semester || uploading}
-        style={{
-          backgroundColor:
-            !file || !subject || !branch || !semester
-              ? "#444"
-              : "#7C3AED",
-          padding: 15,
-          borderRadius: 16,
-          alignItems: "center",
-        }}
-      >
+     <TouchableOpacity
+  onPress={() => {
+    if (uploading) {
+      console.log("⛔ Blocked: already uploading");
+      return;
+    }
+    uploadFile();
+  }}
+  disabled={!file || !subject || !branch || !semester || uploading}
+  style={{
+    backgroundColor:
+      !file || !subject || !branch || !semester || uploading
+        ? "#444"
+        : "#7C3AED",
+    padding: 15,
+    borderRadius: 16,
+    alignItems: "center",
+    opacity: uploading ? 0.7 : 1, // 👈 visual feedback
+  }}
+>
         <Text style={{ color: "white", fontWeight: "bold" }}>
           {uploading ? "Uploading..." : "Upload Notes"}
         </Text>
