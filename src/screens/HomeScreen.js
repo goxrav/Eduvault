@@ -298,8 +298,7 @@ const [bookmarkedNotes, setBookmarkedNotes] = useState(new Set());
 
 
   
-  useEffect(() => {
-  fetchNotes();
+  useEffect(() => { fetchNotes();
   if (currentUid) {
     fetchBookmarks();   // ✅ ADD THIS
   }
